@@ -6,3 +6,5 @@ build
 *.hprof
 *.log
 lombok.config
+sonarqube/postgresql
+sonarqube/postgresql_data
