@@ -1,0 +1,8 @@
+build
+*.class
+.settings
+.idea
+.gradle
+gradle
+*.hprof
+*.log
