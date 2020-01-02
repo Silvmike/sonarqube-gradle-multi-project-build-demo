@@ -18,6 +18,7 @@ static analysis tools.
 ### Running
 
 Related **docker-compose** based project can be found [here](/sonarqube).
+
 Do not forget to update **gradle.properties**: see [documentation](https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-gradle/).
 
 ## Dependency Check
