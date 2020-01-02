@@ -3,6 +3,5 @@ build
 .settings
 .idea
 .gradle
-gradle
 *.hprof
 *.log
