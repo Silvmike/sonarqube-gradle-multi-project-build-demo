@@ -13,7 +13,7 @@ Related **docker-compose** based project can be found [here](/sonarqube).
 
 * JaCoCo support works fine
 * DependencyCheck support works, but:
-    * doesn't show anything in OWASP DependencyCHeck section
+    * doesn't show anything in OWASP DependencyCheck section
     * creates issues (and that's good)
 * Test reports work fine
 * Static analysis works fine
