@@ -25,4 +25,6 @@ static analysis tools.
 
 ## Spotbugs
 
-*  
+* Works, but still there is an issue with **INVOKEDYNAMIC**:
+
+    * see [issue #6 opened in 2016](https://github.com/spotbugs/spotbugs/issues/6) 
