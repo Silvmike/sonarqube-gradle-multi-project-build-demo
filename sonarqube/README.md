@@ -1,4 +1,4 @@
-# Sonarqube in Docker
+# SonarQube in Docker
 
 The only difference to original image is **Dependency check** plugin which 
 was absent in marketplace for unknown (for me) reason.
