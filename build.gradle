@@ -1,0 +1,176 @@
+buildscript {
+
+  repositories {
+
+    mavenLocal()
+    mavenCentral()
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+
+  dependencies {
+    classpath 'org.owasp:dependency-check-gradle:5.2.1'
+    classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8"
+    classpath "com.github.spotbugs:spotbugs-gradle-plugin:3.0.0"
+    classpath "io.freefair.gradle:lombok-plugin:4.1.6"
+  }
+
+}
+
+group = "ru.test"
+
+allprojects {
+
+  apply plugin: "base"
+  apply plugin: "jacoco"
+  apply plugin: "org.sonarqube"
+  apply plugin: "com.github.spotbugs"
+  apply plugin: "org.owasp.dependencycheck"
+  apply plugin: "io.freefair.lombok"
+
+  repositories {
+
+    mavenLocal()
+    mavenCentral()
+
+  }
+
+  dependencyCheck {
+    formats = ['HTML', 'XML']
+    analyzers {
+      pyPackageEnabled = false
+      rubygemsEnabled = false
+      assemblyEnabled = false
+      cmakeEnabled = false
+      composerEnabled = false
+      nodeEnabled = false
+      nodeAuditEnabled = false
+      cocoapodsEnabled = false
+      swiftEnabled = false
+      bundleAuditEnabled = false
+      golangDepEnabled = false
+      golangModEnabled = false
+      retirejs {
+        enabled = false
+      }
+    }
+  }
+
+}
+
+ext {
+  lombokVersion = "1.18.10"
+  junitVersion = "5.3.1"
+}
+
+subprojects {
+
+  apply plugin: "java-library"
+
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+
+  lombok {
+    version = lombokVersion
+  }
+
+  build.dependsOn dependencyCheckAggregate
+
+  jacocoTestReport {
+
+    additionalSourceDirs.setFrom files(sourceSets.main.allSource.srcDirs)
+    sourceDirectories.setFrom files(sourceSets.main.allSource.srcDirs)
+    classDirectories.setFrom  files(sourceSets.main.output)
+
+    reports {
+      html.enabled = true
+      xml.enabled = true
+      csv.enabled = false
+    }
+  }
+
+  spotbugs {
+    toolVersion = "3.1.12"
+    sourceSets = [ sourceSets.main ]
+    ignoreFailures = false
+    reportLevel = "medium"
+    effort = "max"
+
+    // disables bug detectors by their class name: http://findbugs.sourceforge.net/api/edu/umd/cs/findbugs/detect/package-tree.html
+    // must implement Detector interface: http://findbugs.sourceforge.net/api/edu/umd/cs/findbugs/Detector.html
+    omitVisitors = []
+    excludeFilter = file("$rootProject.projectDir/config/findbugs/excludeFilters.xml")
+    reportsDir = file("$project.buildDir/reports/findbugs")
+  }
+  tasks.withType(com.github.spotbugs.SpotBugsTask) {
+
+    // There should only one report type be set enabled
+    reports {
+      xml.enabled false
+      html.enabled true
+    }
+  }
+
+  dependencies {
+
+    // Enables Project Lombok
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+
+    // Enables security bugs scanning
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
+
+    // Dependency spotted by Dependency Check
+    api "com.fasterxml.jackson.core:jackson-databind:2.9.8"
+
+    // JUnit 5
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+  }
+
+  test {
+    useJUnitPlatform()
+  }
+
+  build.dependsOn("spotbugsMain", "spotbugsTest", "jacocoTestReport")
+
+}
+
+task jacocoRootReport(type: JacocoReport) {
+
+  dependsOn = subprojects.test
+
+  additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
+  sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
+  classDirectories.setFrom files(subprojects.sourceSets.main.output)
+  executionData.setFrom files(subprojects.jacocoTestReport.executionData)
+
+  reports {
+    html.enabled = true
+    xml.enabled = true
+    csv.enabled = false
+  }
+}
+
+task jacocoMerge(type: JacocoMerge) {
+
+  dependsOn = subprojects.test
+  executionData = files(subprojects.jacocoTestReport.executionData)
+  destinationFile = file("$rootProject.buildDir/jacoco/summary.exec")
+}
+
+sonarqube {
+  properties {
+    property "sonar.projectKey", "Test"
+    property "sonar.projectName", "Test"
+    property "sonar.sourceEncoding", "UTF-8"
+    property "sonar.jacoco.reportPaths", "$rootProject.buildDir/jacoco/summary.exec"
+    property "sonar.spotbugs.reportPaths", "build/reports/findbugs/main.xml"
+    property "sonar.dependencyCheck.reportPath", "build/reports/dependency-check-report.xml"
+    property "sonar.dependencyCheck.summarize", false
+  }
+}
+
+project.tasks["sonarqube"].dependsOn "build"
+project.tasks["build"].dependsOn "jacocoRootReport", "jacocoMerge", "dependencyCheckAggregate"
+project.tasks["build"].finalizedBy "sonarqube"
