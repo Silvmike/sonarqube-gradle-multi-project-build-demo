@@ -8,7 +8,7 @@ static analysis tools.
 
 ## SonarQube
 
-* JaCoCo support work fine
+* JaCoCo support works fine
 * DependencyCheck support works, but:
     * doesn't show anything in OWASP DependencyCHeck section
     * creates issues (and that's good)
@@ -21,4 +21,8 @@ static analysis tools.
 
 ## JaCoCo
 
-* Required to configure tools like Lombok to generate @Generated annotation 
+* Required to configure tools like Lombok to generate @Generated annotation
+
+## Spotbugs
+
+*  
