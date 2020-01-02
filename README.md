@@ -8,6 +8,9 @@ static analysis tools.
 
 ## SonarQube
 
+Related **docker-compose** based project can be found [here](/sonarqube).
+
+
 * JaCoCo support works fine
 * DependencyCheck support works, but:
     * doesn't show anything in OWASP DependencyCHeck section
