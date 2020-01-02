@@ -8,15 +8,17 @@ static analysis tools.
 
 ## SonarQube
 
-Related **docker-compose** based project can be found [here](/sonarqube).
-
-
 * JaCoCo support works fine
 * DependencyCheck support works, but:
     * doesn't show anything in OWASP DependencyCheck section
     * creates issues (and that's good)
 * Test reports work fine
 * Static analysis works fine
+
+### Running
+
+Related **docker-compose** based project can be found [here](/sonarqube).
+Do not forget to update **gradle.properties**: see [documentation](https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-gradle/).
 
 ## Dependency Check
 
